@@ -3,7 +3,7 @@
 import uuid
 import networkx as nx
 from pandag.nodes import Node, Output
-from pandag import plot
+from pandag import plot, graphml
 import more_itertools
 
 
@@ -14,15 +14,21 @@ class FakeDiGraph(nx.DiGraph):
 
 
 class Pandag:
-    def __init__(self, algo, path_column='path'):
-        self.algo = algo
+    def __init__(self, path_column='path'):
         self.path_column = path_column
         self.next_node_id = 0
         self.nodes = {}
         self.node_ids = {}
         self.G = FakeDiGraph()
-        self.create_graph(algo)
         self.uuid = str(uuid.uuid4())
+
+    def load_algo(self, algo):
+        """Creates the DAG from a python data structure."""
+        self.create_graph(algo)
+
+    def load_graphml(self, path):
+        """Load an algo from a GraphML file located at `path`."""
+        graphml.load(self, path)
 
     def get_node_id(self, node):
         """Return node ID for a given node.
