@@ -40,14 +40,21 @@ class Output(Node):
     """Output node sets new values."""
     plot_shape = 'o'
 
-    def __init__(self, _label=None, _id=None, **kw):
+    def __init__(self, _label=None, _id=None, expr=None, **kw):
         self.label = _label
         self.id = _id
+        self.expr = expr
         self.kw = kw
 
     def update(self, df, loc):
         for k, v in self.kw.items():
             df.loc[loc, k] = df.eval(v)
+        if self.expr:
+            # If there was an eval expression specified, update matching rows
+            # with it.
+            # Expressions can update multiple columns, if separated by newlines
+            eval_df = df.eval(self.expr)
+            df.loc[loc, eval_df.columns] = eval_df
 
 
 class Inequal(Node):
