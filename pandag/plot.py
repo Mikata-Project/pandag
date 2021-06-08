@@ -106,9 +106,10 @@ def plot_dag(G, title=None, show_ids=False, path=None, pos=None, figsize=(20, 24
         'node_color': 'white',
         'node_shape': 's',
         'labels': node_labels,
+        # https://matplotlib.org/stable/gallery/userdemo/connectionstyle_demo.html
+        'connectionstyle': 'arc3,rad=0.',
     }
-    connectionstyle = None
-    nx.draw(G, **plt_config, connectionstyle=connectionstyle)
+    nx.draw(G, **plt_config)
 
     _draw_node_shapes(G, node_map, path, pos, colors, node_size)
 
