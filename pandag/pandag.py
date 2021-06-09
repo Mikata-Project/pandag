@@ -26,9 +26,9 @@ class Pandag:
         """Creates the DAG from a python data structure."""
         self.create_graph(algo)
 
-    def load_graphml(self, path):
+    def load_graphml(self, path, **kwargs):
         """Load an algo from a GraphML file located at `path`."""
-        graphml.load(self, path)
+        graphml.load(self, path, **kwargs)
 
     def get_node_id(self, node):
         """Return node ID for a given node.
