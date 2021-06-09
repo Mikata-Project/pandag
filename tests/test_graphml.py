@@ -52,9 +52,11 @@ def test_custom_id_func(box_file):
     """Test GraphML import with custom node IDs and extract method."""
     def id_extract(node, data):
         """Extract and return the node ID as integer."""
-        m = re.search(r"\[(?P<node_id>\w+)\]", data["label"])
+        pat = r"\[(?P<node_id>\w+)\]"
+        m = re.search(pat, data["label"])
         if m:
-            return int(m.group("node_id"))
+            return (int(m.group("node_id")),
+                    re.sub(pat, '', data["label"]).strip())
 
     dag = Pandag()
     dag.load_graphml(box_file, custom_ids=True, node_id_func=id_extract)
