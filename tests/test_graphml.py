@@ -67,10 +67,37 @@ def test_custom_id_func(box_file):
 
 
 def test_labels(box_file):
-    """Test GraphML import with custom node IDs."""
+    """Test decision labels."""
     dag = Pandag()
     dag.load_graphml(box_file, custom_ids=True)
 
     assert dag.G.get_edge_data("0", "1").get("label") is None
     assert dag.G.get_edge_data("1", "6").get("label") is True
     assert dag.G.get_edge_data("2", "3").get("label") is False
+
+
+def test_eval(box_file, sample_df):
+    """Test eval and its results."""
+    dag = Pandag()
+    dag.load_graphml(box_file, custom_ids=True)
+    res = dag.eval(sample_df)
+
+    query = "x>=60"
+    assert all(res.query(query)["color"] == "red")
+    assert all(res.query(query)["path"] == "0,1,6,7")
+
+    query = "x>=60 and x<40"
+    assert all(res.query(query)["color"] == "red")
+    assert all(res.query(query)["path"] == "0,1,2,6,7")
+
+    query = "x>=60 and x<40 and y>=60"
+    assert all(res.query(query)["color"] == "red")
+    assert all(res.query(query)["path"] == "0,1,2,3,6,7")
+
+    query = "x>=60 and x<40 and y>=60 and y<40"
+    assert all(res.query(query)["color"] == "red")
+    assert all(res.query(query)["path"] == "0,1,2,3,4,6,7")
+
+    query = "~x>=60 and ~x<40 and ~y>=60 and ~y<40"
+    assert all(res.query(query)["color"] == "black")
+    assert all(res.query(query)["path"] == "0,1,2,3,4,5,7")
