@@ -11,10 +11,14 @@ label_map = {
 
 
 def generate_node_id(node, data):
-    """Generates a node ID from the node label, extracts data from: [$ID]."""
-    m = re.search(r"\[(?P<node_id>\w+)\]", data["label"])
+    """Generate a node ID from the node label, extracts data from: [$ID].
+
+    Return the extracted node ID and the label, without the ID part, so
+    it can be the expression if one isn't specified in the description."""
+    pat = r"\[(?P<node_id>\w+)\]"
+    m = re.search(pat, data["label"])
     if m:
-        return m.group("node_id")
+        return m.group("node_id"), re.sub(pat, '', data["label"]).strip()
     assert m, ("node_id_func must return a valid node ID for each nodes, but "
                f"it didn't for node {node}, {data}")
 
@@ -26,7 +30,7 @@ def load(pandag, path, custom_ids=False, node_id_func=generate_node_id):
     for node, data in G.nodes(data=True):
         node_id = node
         if custom_ids:
-            node_id = node_id_func(node, data)
+            node_id, custom_expr = node_id_func(node, data)
         node_map[node] = node_id
         edges = G.edges(node)
         shape = data.get("shape_type")
@@ -38,18 +42,20 @@ def load(pandag, path, custom_ids=False, node_id_func=generate_node_id):
                      "com.yworks.flowchart.start2",
                      "com.yworks.flowchart.terminator"):
             pandag.get_node_id(Dummy(label, _id=node_id))
+        if custom_ids:
+            expr = custom_expr
+        else:
+            expr = label
         if shape == "com.yworks.flowchart.process":
             if description:
                 # description can contain a multi-line expression
                 expr = description
-            else:
-                expr = label
             pandag.get_node_id(Output(label, _id=node_id, expr=expr))
         if shape == "com.yworks.flowchart.decision":
             if len(edges) == 2:
-                pandag.get_node_id(Assert(label, _id=node_id))
+                pandag.get_node_id(Assert(expr, _label=label, _id=node_id))
             else:
-                pandag.get_node_id(Inequal(label, _id=node_id))
+                pandag.get_node_id(Inequal(expr, _label=label, _id=node_id))
     for src_node_id, dst_node_id in nx.edge_dfs(G):
         edge_data = G.get_edge_data(src_node_id, dst_node_id)
         label = edge_data.get("label")
