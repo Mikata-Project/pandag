@@ -48,7 +48,10 @@ class Output(Node):
 
     def update(self, df, loc):
         for k, v in self.kw.items():
-            df.loc[loc, k] = df.eval(v)
+            if callable(v):
+                df.loc[loc, k] = df.apply(v, axis=1)
+            else:
+                df.loc[loc, k] = df.eval(v)
         if self.expr:
             # If there was an eval expression specified, update matching rows
             # with it.
