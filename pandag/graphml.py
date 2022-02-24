@@ -26,11 +26,15 @@ def generate_node_id(node, data):
 def load(pandag, path, custom_ids=False, node_id_func=generate_node_id):
     """Loads GraphML into Pandag algo."""
     G = nx.read_graphml(path)
+    next_node_id = 0
     node_map = {}
     for node, data in G.nodes(data=True):
         node_id = node
         if custom_ids:
             node_id, custom_expr = node_id_func(node, data)
+        else:
+            node_id = next_node_id
+            next_node_id += 1
         node_map[node] = node_id
         edges = G.edges(node)
         shape = data.get("shape_type")
