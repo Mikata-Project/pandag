@@ -59,7 +59,7 @@ def load(pandag, path, custom_ids=False, node_id_func=generate_node_id):
             if len(edges) == 2:
                 pandag.get_node_id(Assert(expr, _label=label, _id=node_id))
             else:
-                pandag.get_node_id(Inequal(expr, _label=label, _id=node_id))
+                pandag.get_node_id(Inequal(_label=label, _id=node_id))
     for src_node_id, dst_node_id in nx.edge_dfs(G):
         edge_data = G.get_edge_data(src_node_id, dst_node_id)
         label = edge_data.get("label")
