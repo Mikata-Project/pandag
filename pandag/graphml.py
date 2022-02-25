@@ -23,7 +23,8 @@ def generate_node_id(node, data):
                f"it didn't for node {node}, {data}")
 
 
-def load(pandag, path, custom_ids=False, node_id_func=generate_node_id):
+def load(pandag, path, local_dict=None, global_dict=None,
+         custom_ids=False, node_id_func=generate_node_id):
     """Loads GraphML into Pandag algo."""
     G = nx.read_graphml(path)
     next_node_id = 0
@@ -54,12 +55,23 @@ def load(pandag, path, custom_ids=False, node_id_func=generate_node_id):
             if description:
                 # description can contain a multi-line expression
                 expr = description
-            pandag.get_node_id(Output(label, _id=node_id, expr=expr))
+            pandag.get_node_id(Output(label,
+                                      _id=node_id,
+                                      expr=expr,
+                                      local_dict=local_dict,
+                                      global_dict=global_dict))
         if shape == "com.yworks.flowchart.decision":
             if len(edges) == 2:
-                pandag.get_node_id(Assert(expr, _label=label, _id=node_id))
+                pandag.get_node_id(Assert(expr,
+                                          _label=label,
+                                          _id=node_id,
+                                          local_dict=local_dict,
+                                          global_dict=global_dict))
             else:
-                pandag.get_node_id(Inequal(_label=label, _id=node_id))
+                pandag.get_node_id(Inequal(_label=label,
+                                           _id=node_id,
+                                           local_dict=local_dict,
+                                           global_dict=global_dict))
     for src_node_id, dst_node_id in nx.edge_dfs(G):
         edge_data = G.get_edge_data(src_node_id, dst_node_id)
         label = edge_data.get("label")

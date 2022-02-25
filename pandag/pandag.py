@@ -22,13 +22,14 @@ class Pandag:
         self.G = FakeDiGraph()
         self.uuid = str(uuid.uuid4())
 
-    def load_algo(self, algo):
+    def load_algo(self, algo, local_dict=None, global_dict=None):
         """Creates the DAG from a python data structure."""
-        self.create_graph(algo)
+        self.create_graph(algo, local_dict=local_dict, global_dict=global_dict)
 
-    def load_graphml(self, path, **kwargs):
+    def load_graphml(self, path, local_dict=None, global_dict=None, **kwargs):
         """Load an algo from a GraphML file located at `path`."""
-        graphml.load(self, path, **kwargs)
+        graphml.load(self, path, local_dict=local_dict,
+                     global_dict=global_dict, **kwargs)
 
     def get_node_id(self, node):
         """Return node ID for a given node.
@@ -69,7 +70,7 @@ class Pandag:
         """
         return self.node_ids[node_id]
 
-    def create_graph(self, sub, parent=None):
+    def create_graph(self, sub, parent=None, local_dict=None, global_dict=None):
         """Generate NetworkX graph object.
 
         Args:
@@ -82,6 +83,11 @@ class Pandag:
         """
         for k, v in sub.items():
             if isinstance(k, Node):
+                # add local/global dicts to the node if specified
+                if local_dict:
+                    k.local_dict = local_dict
+                if global_dict:
+                    k.global_dict = global_dict
                 # create nodes and add an edge between them if there's a parent
                 k_id = self.get_node_id(k)
                 if parent:
@@ -89,13 +95,19 @@ class Pandag:
                 if isinstance(v, Node):
                     self.G.add_edge(self.get_node_id(k), self.get_node_id(v))
                 if isinstance(v, dict):
-                    self.create_graph(v, parent=k)
+                    self.create_graph(v,
+                                      parent=k,
+                                      local_dict=local_dict,
+                                      global_dict=global_dict)
             elif isinstance(v, (Node, tuple, list)):
                 # having a list on this level means they will be daisy-chained
                 prev_node = None
                 for node in more_itertools.always_iterable(v):
                     if isinstance(node, dict):
-                        self.create_graph(node, parent=parent)
+                        self.create_graph(node,
+                                          parent=parent,
+                                          local_dict=local_dict,
+                                          global_dict=global_dict)
                         continue
                     node_id = self.get_node_id(node)
                     if prev_node:
@@ -110,7 +122,10 @@ class Pandag:
                     for node in v.keys():
                         self.G.add_edge(self.get_node_id(parent),
                                         self.get_node_id(node), label=k)
-                self.create_graph(v, parent=parent)
+                self.create_graph(v,
+                                  parent=parent,
+                                  local_dict=local_dict,
+                                  global_dict=global_dict)
 
     def eval(self, df):
         """Evaluate a Pandas DataFrame with the graph.

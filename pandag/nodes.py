@@ -22,15 +22,19 @@ class Assert(Node):
     """Assert node partitions the rows into two based on the incoming condition."""
     plot_shape = '>'
 
-    def __init__(self, query, _label=None, _id=None):
+    def __init__(self, query, _label=None, _id=None, local_dict=None, global_dict=None):
         self.query = query
         self.label = _label
         self.id = _id
+        self.local_dict = local_dict
+        self.global_dict = global_dict
         if not _label:
             self.label = query
 
     def eval(self, df, edge_data):
-        res = df.eval(self.query)
+        res = df.eval(self.query,
+                      local_dict=self.local_dict,
+                      global_dict=self.global_dict)
         if edge_data['label']:
             return res
         return np.invert(res)
@@ -40,10 +44,12 @@ class Output(Node):
     """Output node sets new values."""
     plot_shape = 'o'
 
-    def __init__(self, _label=None, _id=None, expr=None, **kw):
+    def __init__(self, _label=None, _id=None, expr=None, local_dict=None, global_dict=None, **kw):
         self.label = _label
         self.id = _id
         self.expr = expr
+        self.local_dict = local_dict
+        self.global_dict = global_dict
         self.kw = kw
 
     def update(self, df, loc):
@@ -51,12 +57,16 @@ class Output(Node):
             if callable(v):
                 df.loc[loc, k] = df.apply(v, axis=1)
             else:
-                df.loc[loc, k] = df.eval(v)
+                df.loc[loc, k] = df.eval(v,
+                                         local_dict=self.local_dict,
+                                         global_dict=self.global_dict)
         if self.expr:
             # If there was an eval expression specified, update matching rows
             # with it.
             # Expressions can update multiple columns, if separated by newlines
-            eval_df = df.eval(self.expr)
+            eval_df = df.eval(self.expr,
+                              local_dict=self.local_dict,
+                              global_dict=self.global_dict)
             df.loc[loc, eval_df.columns] = eval_df
 
 
@@ -64,13 +74,17 @@ class Inequal(Node):
     """Inequal node evaluates a given condition."""
     plot_shape = 'h'
 
-    def __init__(self, _label=None, _id=None, **kw):
+    def __init__(self, _label=None, _id=None, local_dict=None, global_dict=None, **kw):
         self.label = _label
         self.id = _id
+        self.local_dict = local_dict
+        self.global_dict = global_dict
         self.kw = kw
 
     def eval(self, df, edge_data):
-        return df.eval(edge_data['label'])
+        return df.eval(edge_data['label'],
+                       local_dict=self.local_dict,
+                       global_dict=self.global_dict)
 
 
 class Dummy(Node):
