@@ -22,10 +22,13 @@ class Assert(Node):
     """Assert node partitions the rows into two based on the incoming condition."""
     plot_shape = '>'
 
-    def __init__(self, query, _label=None, _id=None, local_dict=None, global_dict=None):
+    def __init__(self, query, _label=None, _id=None, _x=None, _y=None,
+                 local_dict=None, global_dict=None):
         self.query = query
         self.label = _label
         self.id = _id
+        self._x = _x
+        self._y = _y
         self.local_dict = local_dict
         self.global_dict = global_dict
         if not _label:
@@ -44,9 +47,12 @@ class Output(Node):
     """Output node sets new values."""
     plot_shape = 'o'
 
-    def __init__(self, _label=None, _id=None, expr=None, local_dict=None, global_dict=None, **kw):
+    def __init__(self, _label=None, _id=None, _x=None, _y=None, expr=None,
+                 local_dict=None, global_dict=None, **kw):
         self.label = _label
         self.id = _id
+        self._x = _x
+        self._y = _y
         self.expr = expr
         self.local_dict = local_dict
         self.global_dict = global_dict
@@ -74,9 +80,12 @@ class Inequal(Node):
     """Inequal node evaluates a given condition."""
     plot_shape = 'h'
 
-    def __init__(self, _label=None, _id=None, local_dict=None, global_dict=None, **kw):
+    def __init__(self, _label=None, _id=None, _x=None, _y=None,
+                 local_dict=None, global_dict=None, **kw):
         self.label = _label
         self.id = _id
+        self._x = _x
+        self._y = _y
         self.local_dict = local_dict
         self.global_dict = global_dict
         self.kw = kw
@@ -91,6 +100,8 @@ class Dummy(Node):
     """Dummy node is just a placeholder for presentation purposes."""
     plot_shape = 's'
 
-    def __init__(self, _label=None, _id=None):
+    def __init__(self, _label=None, _id=None, _x=None, _y=None):
         self.label = _label
         self.id = _id
+        self._x = _x
+        self._y = _y
