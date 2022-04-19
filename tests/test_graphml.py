@@ -29,13 +29,19 @@ def box_file():
 def test_load(box_file):
     """Test GraphML import."""
     dag = Pandag()
+    dag.load_graphml(box_file)
+    assert set(dag.G.nodes) == {0, 1, 2, 3, 4, 5, 6, 7}
+    assert set(dag.G.edges) == {(0, 1), (1, 2), (1, 3), (2, 7), (3, 2), (3, 4),
+                                (4, 2), (4, 5), (5, 6), (5, 2), (6, 7)}
+
+
+def test_coords_type(box_file):
+    """Test GraphML coordinates to be floats."""
+    dag = Pandag()
 
     dag.load_graphml(box_file)
-    assert set(dag.G.nodes) == {'n0', 'n1', 'n2', 'n3', 'n4', 'n5', 'n6', 'n7'}
-    assert set(dag.G.edges) == {('n0', 'n1'), ('n1', 'n2'), ('n1', 'n3'),
-                                ('n2', 'n7'), ('n3', 'n2'), ('n3', 'n4'),
-                                ('n4', 'n2'), ('n4', 'n5'), ('n5', 'n6'),
-                                ('n5', 'n2'), ('n6', 'n7')}
+    for node, data in dag.G.nodes(data=True):
+        isinstance(getattr(data["node"], "_x", None), float)
 
 
 def test_extract_ids(box_file):
