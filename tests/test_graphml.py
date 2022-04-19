@@ -15,7 +15,7 @@ def sample_df():
     """Sample DataFrame."""
     size = 100
     df = pd.DataFrame({'x': np.repeat(range(size), size),
-                       'y': list(range(size))*size})
+                       'y': list(range(size)) * size})
     return df
 
 
