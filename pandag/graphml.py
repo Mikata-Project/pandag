@@ -48,8 +48,8 @@ def load(pandag, path, local_dict=None, global_dict=None,
                      "com.yworks.flowchart.terminator"):
             pandag.get_node_id(Dummy(label,
                                      _id=node_id,
-                                     _x=data.get("x"),
-                                     _y=data.get("y")))
+                                     _x=None if (_x := data.get("x")) is None else float(_x),
+                                     _y=None if (_y := data.get("y")) is None else float(_y)))
         if custom_ids:
             expr = custom_expr
         else:
@@ -60,8 +60,8 @@ def load(pandag, path, local_dict=None, global_dict=None,
                 expr = description
             pandag.get_node_id(Output(label,
                                       _id=node_id,
-                                      _x=data.get("x"),
-                                      _y=data.get("y"),
+                                      _x=None if (_x := data.get("x")) is None else float(_x),
+                                      _y=None if (_y := data.get("y")) is None else float(_y),
                                       expr=expr,
                                       local_dict=local_dict,
                                       global_dict=global_dict))
@@ -70,15 +70,15 @@ def load(pandag, path, local_dict=None, global_dict=None,
                 pandag.get_node_id(Assert(expr,
                                           _label=label,
                                           _id=node_id,
-                                          _x=data.get("x"),
-                                          _y=data.get("y"),
+                                          _x=None if (_x := data.get("x")) is None else float(_x),
+                                          _y=None if (_y := data.get("y")) is None else float(_y),
                                           local_dict=local_dict,
                                           global_dict=global_dict))
             else:
                 pandag.get_node_id(Inequal(_label=label,
                                            _id=node_id,
-                                           _x=data.get("x"),
-                                           _y=data.get("y"),
+                                           _x=None if (_x := data.get("x")) is None else float(_x),
+                                           _y=None if (_y := data.get("y")) is None else float(_y),
                                            local_dict=local_dict,
                                            global_dict=global_dict))
     for src_node_id, dst_node_id in nx.edge_dfs(G):
