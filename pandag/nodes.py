@@ -66,10 +66,11 @@ class Output(Node):
                 df.loc[loc, k] = df.eval(v,
                                          local_dict=self.local_dict,
                                          global_dict=self.global_dict)
-        if self.expr:
+        if self.expr and any(loc):
             # If there was an eval expression specified, update matching rows
             # with it.
             # Expressions can update multiple columns, if separated by newlines
+            # Skips if no rows need to be evaluated.
             eval_df = df.eval(self.expr,
                               local_dict=self.local_dict,
                               global_dict=self.global_dict)
