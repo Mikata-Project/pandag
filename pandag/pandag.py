@@ -139,7 +139,8 @@ class Pandag:
         """
         # generate a unique column name
         node_col = f'{self.uuid}_curr_node'
-        for src_node_id, dst_node_id in nx.edge_dfs(self.G):
+        # TODO: Add validation to make ensure ids or created top to bottom.
+        for src_node_id, dst_node_id in sorted(self.G.edges):
             if node_col not in df.columns:
                 # this is the first node we're visiting, add its id to the
                 # `node_col` column as the current node ID for each rows
